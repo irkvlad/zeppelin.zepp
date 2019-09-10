@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="Уровень дизайнеров">
+        <message>
+            <![CDATA[Уровень показа деталей дизайнеров.]]>
+        </message>
+    </layout>
+    <state>
+        <name>Уровень дизайнеров</name>
+        <description>Уровень показа деталей дизайнеров.</description>       
+    </state>
+</metadata>
