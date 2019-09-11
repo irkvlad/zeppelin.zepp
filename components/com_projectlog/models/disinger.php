@@ -254,4 +254,27 @@ class ProjectlogModelDisinger extends JModel
         return $data;
     }
 
+    /**
+     * Функция получает объект со всм списком работ сданных активными дизайнерами
+     */
+
+    function getDisignerAllWorck()
+    {
+        $db = JFactory::getDBO();
+        $data = null;
+        $query = " SELECT "
+            . " COUNT(*) as summ " // Подсчитать количество записей
+            . " , chief "
+            . " FROM "
+            . " jos_projectlog_projects "
+            . " WHERE "
+            . " category = 10"   // Сданные проекты
+            . " AND chief <> 0 " //DATE_FORMAT('01.02.2019','%Y-%m-%d')
+        ;
+
+        $db->setQuery($query);
+        $data = $db->loadResult();
+
+    }
+
 }
