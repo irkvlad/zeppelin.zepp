@@ -93,6 +93,7 @@ class ProjectlogModelDisinger extends JModel
 
         $this->_disigner= JRequest::getString('disigner', '');
         $this->_manager= JRequest::getString('manager', '');
+        $data =$this->getDisignerAllWorck();
 
         // NEDD: Выборка по деталям
     }
@@ -215,8 +216,7 @@ class ProjectlogModelDisinger extends JModel
      * @param $catid int категория проектов
      * @return object  Двух мерный массив
      */
-    public function gedDesignWorked($managersId, $designersId, $startDate, $endDate, $catid = 6)
-    {
+    public function gedDesignWorked($managersId, $designersId, $startDate, $endDate, $catid = 6){
         $db = JFactory::getDBO();
         $data = null;
         for ($i = 0, $n = count($managersId); $i < $n; $i++) { // Первая сторона массива менеджеры
@@ -246,7 +246,7 @@ class ProjectlogModelDisinger extends JModel
                 $data[$i]->disigner[$t]->id = $designersId[$t]->user_id;
                 $data[$i]->disigner[$t]->name = $designersId[$t]->name;
                 $data[$i]->disigner[$t]->count = $db->loadResult();
-
+                getDisignerAllWorck($designersId[$t]->user_id, $endDate);//NEDD Доработать доработать доработать
 
                 //$data[$ManagerId][$designerID] =
             }
@@ -263,17 +263,19 @@ class ProjectlogModelDisinger extends JModel
         $db = JFactory::getDBO();
         $data = null;
         $query = " SELECT "
-            . " COUNT(*) as summ " // Подсчитать количество записей
-            . " , chief "
+            . " chief " // Подсчитать количество записей
+            . " , COUNT(*) as count "
             . " FROM "
             . " jos_projectlog_projects "
             . " WHERE "
-            . " category = 10"   // Сданные проекты
+            . " category = 10 "   // Сданные проекты
             . " AND chief <> 0 " //DATE_FORMAT('01.02.2019','%Y-%m-%d')
+            . " GROUP BY chief "
         ;
 
         $db->setQuery($query);
-        $data = $db->loadResult();
+        $data = $db->loadAssocList();
+        return $data;
 
     }
 
