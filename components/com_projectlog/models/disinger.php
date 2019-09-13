@@ -93,7 +93,7 @@ class ProjectlogModelDisinger extends JModel
 
         $this->_disigner= JRequest::getString('disigner', '');
         $this->_manager= JRequest::getString('manager', '');
-        $data =$this->getDisignerAllWorck();
+        //$data =$this->getDisignerAllWorck();
 
         // NEDD: Выборка по деталям
     }
@@ -246,7 +246,7 @@ class ProjectlogModelDisinger extends JModel
                 $data[$i]->disigner[$t]->id = $designersId[$t]->user_id;
                 $data[$i]->disigner[$t]->name = $designersId[$t]->name;
                 $data[$i]->disigner[$t]->count = $db->loadResult();
-                getDisignerAllWorck($designersId[$t]->user_id, $endDate);//NEDD Доработать доработать доработать
+                $data[$i]->disigner[$t]->countTotall = getDisignerAllWorck($designersId[$t]->user_id, $endDate);//NEDD Доработать доработать доработать
 
                 //$data[$ManagerId][$designerID] =
             }
@@ -255,10 +255,10 @@ class ProjectlogModelDisinger extends JModel
     }
 
     /**
-     * Функция получает объект со всм списком работ сданных активными дизайнерами
+     * Функция получает объект со всем списком работ сданных активными дизайнерами
      */
 
-    function getDisignerAllWorck()
+    function getDisignerAllWorck($designersId, $endDate)
     {
         $db = JFactory::getDBO();
         $data = null;
@@ -268,13 +268,13 @@ class ProjectlogModelDisinger extends JModel
             . " FROM "
             . " jos_projectlog_projects "
             . " WHERE "
-            . " category = 10 "   // Сданные проекты
-            . " AND chief <> 0 " //DATE_FORMAT('01.02.2019','%Y-%m-%d')
-            . " GROUP BY chief "
+            . " chief = " . $designersId
+            . " AND contract_to <= ".$endDate // Дата когда проект был перемещен в категорию 7 - "Отдать в производство"
+            . " AND category >= 10 "   // Сданные проекты
         ;
 
         $db->setQuery($query);
-        $data = $db->loadAssocList();
+        $data = $db->loadResult();
         return $data;
 
     }
