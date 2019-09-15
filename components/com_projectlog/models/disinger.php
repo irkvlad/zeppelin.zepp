@@ -40,13 +40,13 @@ class ProjectlogModelDisinger extends JModel
     var $_id = null;
     var $_data = null;
     var $_dataLast = null;
-    var $_startDate= null;
-    var $_startDateLast= null;
-    var $_endDate= null;
-    var $_endDateLast= null;
-    var $_catId= null;
-    var $_disigner= null;
-    var $_manager= null;
+    var $_startDate = null;
+    var $_startDateLast = null;
+    var $_endDate = null;
+    var $_endDateLast = null;
+    var $_catId = null;
+    var $_disigner = null;
+    var $_manager = null;
 
 
     function __construct()
@@ -56,82 +56,74 @@ class ProjectlogModelDisinger extends JModel
 
         $mainframe =& JFactory::getApplication();
         $this->init();
-       // $this->getData(); // для отладки
+        // $this->getData(); // для отладки
     }
 
     function init()
     {
         $this->_id = JRequest::getInt('id', '0');
 
-        $this->_startDateLast = date_create(     JRequest::getString('startDate',date('Y-m-01', strtotime('-1 month')))      );
-        $this->_startDate =date('Y-m-01');
+        $this->_startDate = date('Y-m-01');
+        $startDate = JRequest::getString('startDate', date('Y-01-01'));
+        if (strtotime($startDate) >= strtotime($this->_startDate))
+            $this->_startDateLast = date('Y-m-01', strtotime('-1 month', strtotime($this->_startDate)));
+        else
+            $this->_startDateLast = date('Y-m-d', strtotime($startDate));
 
-        if (date_format($this->_startDateLast, 'Y-m-d')) {
-            $this->_startDateLast = date_format($this->_startDateLast,'Y-m-d');
-            //$this->_startDate = date_format($this->_startDate, 'Y-m-d');
-        }
-        else {
-            $this->_startDateLast = date_create(    date('Y-m-01', strtotime('-1 month'))   );
-            $this->_startDateLast = date_format(   $this->_startDateLast,'Y-m-d'       );
-            $this->_startDate = date('Y-m-01');
-        }
+        $this->_endDate = date('Y-m-d', strtotime(JRequest::getString('endDate', date("Y-m-d"))));
+        $this->_endDateLast = date('Y-m-t', strtotime('- 1 days', strtotime($this->_startDate)));
 
-        $this->_endDate = date_create(      JRequest::getString('endDate', date("Y-m-d"))       );
-        $this->_endDateLast = date_create(      JRequest::getString('endDate', date("Y-m-t", strtotime("-1 month")))       );
+        $this->_catId = JRequest::getInt('catid', '10');
 
-        if (date_format($this->_endDate, 'Y-m-d')) {
-            $this->_endDateLast = date_format($this->_endDateLast,'Y-m-d');
-            $this->_endDate = date_format($this->_endDate, 'Y-m-d');
-        }
-        else {
-            $this->_endDateLast = date_create(    date("Y-m-t", strtotime("-1 month"))   );
-            $this->_endDateLast = date_format(   $this->_endDateLast,'Y-m-d'       );
-            $this->_endDate = date('Y-m-d');
-        }
+        $this->_disigner = JRequest::getString('disigner', '');
+        $this->_manager = JRequest::getString('manager', '');
 
-        $this->_catId = JRequest::getInt('catid',  '6');
-
-        $this->_disigner= JRequest::getString('disigner', '');
-        $this->_manager= JRequest::getString('manager', '');
-        //$data =$this->getDisignerAllWorck();
-
-        // NEDD: Выборка по деталям
     }
 
     /**
-     * Возвращает набор данных ввиде двух мерного массива. Data(порядковый номер из перебора менеджеров, Порядковый номер из перебора дизайнеров)
-     * @return object|null
+     * Возвращает количество работ дизайнера в дитализации по менеджерам. На текущий месяц.
+     * @return object|null набор данных ввиде двух мерного массива.
+     *  Data([порядковый номер из перебора менеджеров] -> объект, [Порядковый номер из перебора дизайнеров] -> объект)
      */
     function getData()
     {
-       // if (empty($this->_dataLast)) {
-            $this->_dataLast = $this->gedDesignWorked($this->getManagersId(), $this->getDisignersId(), $this->_startDate, $this->_endDate, $this->_catId);
-       // }
+        // if (empty($this->_dataLast)) {
+        $this->_data = $this->gedDesignWorked($this->getManagersId(), $this->getDisignersId(), $this->_startDateLast, $this->_endDate, $this->_catId);
+        // }
 
-        return $this->_dataLast;
+        return $this->_data;
 
     }
 
+    /**
+     * Возвращает количество работ дизайнера в дитализации по менеджерам. С начальной даты.
+     * @return object|null набор данных ввиде двух мерного массива.
+     *  Data([порядковый номер из перебора менеджеров] -> объект, [Порядковый номер из перебора дизайнеров] -> объект)
+     */
     function getDataLast()
     {
-       // if (empty($this->_dataLast)) {
-            $this->_dataLast = $this->gedDesignWorked($this->getManagersId(), $this->getDisignersId(), $this->_startDateLast, $this->_endDateLast, $this->_catId);
-       // }
+        // if (empty($this->_dataLast)) {
+        $this->_dataLast = $this->gedDesignWorked($this->getManagersId(), $this->getDisignersId(), $this->_startDateLast, $this->_endDateLast, $this->_catId);
+        // }
 
         return $this->_dataLast;
     }
 
+    /**
+     * 
+     * @return bool|object
+     */
     function getDataDetalis()
     {
         $dataDetalis = false;
-        if($this->_disigner) {
+        if ($this->_disigner) {
             $dataDetalis = $this->gedDesignWorked($this->_manager, $this->_disigner, $this->_startDate, $this->_endDate, $this->_catId);
 
         }
         return $dataDetalis;
-    }
+    } //NEDD:
 
-     /**
+    /**
      * Функция получает список опубликованных менеджеров
      * @return obect  объект содержит свойства int $user_id и string $name - Имя менеджера
      */
@@ -216,7 +208,8 @@ class ProjectlogModelDisinger extends JModel
      * @param $catid int категория проектов
      * @return object  Двух мерный массив
      */
-    public function gedDesignWorked($managersId, $designersId, $startDate, $endDate, $catid = 6){
+    public function gedDesignWorked($managersId, $designersId, $startDate, $endDate, $catid = 10)
+    {
         $db = JFactory::getDBO();
         $data = null;
         for ($i = 0, $n = count($managersId); $i < $n; $i++) { // Первая сторона массива менеджеры
@@ -232,11 +225,10 @@ class ProjectlogModelDisinger extends JModel
                     . " FROM "
                     . " jos_projectlog_projects "
                     . " WHERE chief=" . $designerID
-                    . " AND category = " . $catid  // Категория проектов
-                    . " AND contract_from " //DATE_FORMAT('01.02.2019','%Y-%m-%d')
-                    . "     BETWEEN  DATE_SUB(DATE_FORMAT('" . $startDate . " 00:00:00','%Y-%m-%d %H:%i:%S'), INTERVAL DAYOFMONTH(DATE_FORMAT('" . $startDate . " 00:00:00','%Y-%m-%d %H:%i:%S')) + 1 DAY)"
-                    . "         AND DATE_FORMAT('" . $endDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
-                    ;
+                    . " AND category <> " . $catid  // Категория проектов
+                    . " AND contract_from > DATE_FORMAT('" . $startDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+                    . " AND contract_from <= DATE_FORMAT('" . $endDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+                    . " AND release_date > '0000-00-00' ";
 
                 if ($managersId) $query .= " AND manager=" . $ManagerId;
 
@@ -246,9 +238,7 @@ class ProjectlogModelDisinger extends JModel
                 $data[$i]->disigner[$t]->id = $designersId[$t]->user_id;
                 $data[$i]->disigner[$t]->name = $designersId[$t]->name;
                 $data[$i]->disigner[$t]->count = $db->loadResult();
-                $data[$i]->disigner[$t]->countTotall = getDisignerAllWorck($designersId[$t]->user_id, $endDate);//NEDD Доработать доработать доработать
-
-                //$data[$ManagerId][$designerID] =
+                $data[$i]->disigner[$t]->countTotall = $this->getDisignerAllWorck($designersId[$t]->user_id, $endDate);
             }
         }
         return $data;
@@ -257,20 +247,19 @@ class ProjectlogModelDisinger extends JModel
     /**
      * Функция получает объект со всем списком работ сданных активными дизайнерами
      */
-
     function getDisignerAllWorck($designersId, $endDate)
     {
         $db = JFactory::getDBO();
         $data = null;
         $query = " SELECT "
-            . " chief " // Подсчитать количество записей
-            . " , COUNT(*) as count "
+            // . " chief " // Подсчитать количество записей
+            . " COUNT(*) as count "
             . " FROM "
             . " jos_projectlog_projects "
             . " WHERE "
             . " chief = " . $designersId
-            . " AND contract_to <= ".$endDate // Дата когда проект был перемещен в категорию 7 - "Отдать в производство"
-            . " AND category >= 10 "   // Сданные проекты
+            . " AND contract_to <= DATE('" . $endDate . "') " // Дата когда проект был перемещен в категорию 7 - "Отдать в производство"
+            . " AND category = 10 "   // Сданные проекты
         ;
 
         $db->setQuery($query);
@@ -278,5 +267,24 @@ class ProjectlogModelDisinger extends JModel
         return $data;
 
     }
+
+    /**
+     * Выборка списка не завершенных работ по ID-менеджера и дизанера. предшедствавшие указаной даты. (Выходящие на период работы)
+     * @return object  id, release_id, shot_title, release_date
+     */
+    function getTotallOnDate()
+    {
+        return $totalOnDate = null;
+    }
+
+    /**
+     * Функция записи планов сдачи работ дизайнеров по проекту менеджеру
+     */
+    function setDisignWorckPlan()
+    {
+        return false;
+    }
+
+
 
 }

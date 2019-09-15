@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 
 
 
-
+$startDateLast = date('d.m.Y', strtotime($this->startDateLast));
 
 ?> 
 <h1>  </h1>
@@ -25,9 +25,9 @@ defined('_JEXEC') or die('Restricted access');
         <!-- http://zeppelin.zepp/index.php?option=com_projectlog&view=disinger&Itemid=124 -->
         <form action="index.php?option=com_projectlog&view=disinger" method="post" name="adminForm">
             <div  class="header" >Отчеты дизайнеров</div>
-            <div style="padding-left: 40px;"><h3>Текущие в работе</h3></div>
+            <div style="padding-left: 40px;"><h3></h3></div>
             <div id="toolbar" class="toolbar">
-                Укажите начальную дату <?php echo JHTML::_('calendar', $value = $this->startDate, $name='startDate', $id='startDate', $format = '%d.%m.%Y', $attribs = 'size="10"'); ?>
+                Начало выборки проектов поступивших дизайнерам <?php echo JHTML::_('calendar', $value = $startDateLast, $name='startDate', $id='startDate', $format = '%d.%m.%Y', $attribs = 'size="10"'); ?>
 
                 <input type="submit" name="submit" class="button" value="Показать" />
                 <input type="hidden" name="boxchecked" value="0" />
@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Restricted access');
     <div class="m">
         <!-- Прошлый месяц -->
         <div id="sticky" class="sticky-element" style="float: left;">
-            <div style="padding-left: 40px;"><h3>От даты:<?php echo $this->startDateLast; ?> по дату: <?php echo $this->endDateLast; ?></h3></div>
+            <div style="padding-left: 40px;"><h3>От даты: <?php echo $startDateLast; ?> по дату: <?php echo $this->endDateLast; ?></h3></div>
             <div class="sticky-anchor"></div>
             <table id="des_wrc"  class="sticky-content" border="1" style="display:none;">
                 <thead>
@@ -99,15 +99,15 @@ defined('_JEXEC') or die('Restricted access');
                 ?>
 
                 <tr><td><b>Сданные проекты</b></td>
-                <?php // NEDD:  Нужно показывать готовые проекты (отправленные в производсво ) а сейчас тут подсчет - Итого по таблице
-                    foreach ($sumWorked as $dSum){
-                        $text = '';
-                        if ($dSum) {
-                            $link = JRoute::_('index.php?option=com_projectlog&view=disinger&layout=disign_total&disigner=' . $_disigner->id);
-                            $text = '<strong style="font-size: 16px;">' . $dSum . '</strong>';
-                        }
-                        echo '<td align="center"><a title="Показать работы дизайнера за данный период" href="' . $link . '"> ' . $text . ' </a></td>';
+                <?php
+                foreach ($this->dataLast[0]->disigner as $_disigner){
+                    $text = '';
+                    if ($_disigner->countTotall ) {
+                        $link = JRoute::_('index.php?option=com_projectlog&view=disinger&layout=disign_total&disigner=' . $_disigner->id);
+                        $text = '<strong style="font-size: 16px;">' . $_disigner->countTotall . '</strong>';
                     }
+                    echo '<td align="center"><a title="Показать работы дизайнера за данный период" href="' . $link . '"> ' . $text . ' </a></td>';
+                }
                     ?>
 
                 </tr>
@@ -116,7 +116,7 @@ defined('_JEXEC') or die('Restricted access');
 
         <!-- Текущий месяц -->
         <div id="sticky" class="sticky-element" style="float: left;">
-            <div style="padding-left: 40px;"><h3>От даты:<?php echo $this->startDate; ?> по дату: <?php echo $this->endDate; ?></h3></div>
+            <div style="padding-left: 40px;"><h3>От даты: <?php echo $this->startDate; ?> по дату: <?php echo $this->endDate; ?></h3></div>
             <div class="sticky-anchor"></div>
             <table id="des_wrc"  class="sticky-content" border="1" style="display:none;">
                 <thead>
@@ -162,16 +162,15 @@ defined('_JEXEC') or die('Restricted access');
                     }
                     echo '</tr>';
                     $k = 1 - $k;
-
                 }
                 ?>
                 <tr><td><b>Сданные проекты</b></td>
                     <?php
-                    foreach ($sumWorked as $dSum){
+                    foreach ($this->data[0]->disigner as $_disigner){
                         $text = '';
-                        if ($dSum) {
+                        if ($_disigner->countTotall ) {
                             $link = JRoute::_('index.php?option=com_projectlog&view=disinger&layout=disign_total&disigner=' . $_disigner->id);
-                            $text = '<strong style="font-size: 16px;">' . $dSum . '</strong>';
+                            $text = '<strong style="font-size: 16px;">' . $_disigner->countTotall . '</strong>';
                         }
                         echo '<td align="center"><a title="Показать работы дизайнера за данный период" href="' . $link . '"> ' . $text . ' </a></td>';
                     }

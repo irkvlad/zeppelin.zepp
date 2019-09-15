@@ -30,12 +30,17 @@ class ProjectlogViewDisinger extends JView
         $endDate = date_create($this->_models['disinger']->_endDate);
         $this->assignRef('endDate', date_format($endDate,'d.m.Y')         );
 
-        $startDateLast = date_create($this->_models['disinger']->_startDateLast);
-        $this->assignRef('startDateLast', 	date_format($startDateLast,'01.m.Y')    );
+        $startDateLast = $this->_models['disinger']->_startDateLast;
+        if (strtotime($startDateLast) < strtotime('2010-01-01')) {
+            $startDateLast = date("Y-01-01");
+        }
+
+        $this->assignRef('startDateLast', $startDateLast);
+
         $endDateLast = date_create($this->_models['disinger']->_endDateLast);
         $this->assignRef('endDateLast', date_format($endDateLast,'d.m.Y')         );
 
-        $disignerAllWorck = get(' DisignerAllWorck');
+        //$disignerAllWorck = get(' DisignerAllWorck');
 
         // NEDD: Выборка по деталям  работ дизайнеров
         $disignDetalis = $this->get('DataDetalis');
