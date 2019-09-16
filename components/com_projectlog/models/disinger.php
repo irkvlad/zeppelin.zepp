@@ -56,7 +56,6 @@ class ProjectlogModelDisinger extends JModel
 
         $mainframe =& JFactory::getApplication();
         $this->init();
-        // $this->getData(); // для отладки
     }
 
     function init()
@@ -77,6 +76,8 @@ class ProjectlogModelDisinger extends JModel
 
         $this->_disigner = JRequest::getString('disigner', '');
         $this->_manager = JRequest::getString('manager', '');
+
+
 
     }
 
@@ -108,20 +109,6 @@ class ProjectlogModelDisinger extends JModel
 
         return $this->_dataLast;
     }
-
-    /**
-     * 
-     * @return bool|object
-     */
-    function getDataDetalis()
-    {
-        $dataDetalis = false;
-        if ($this->_disigner) {
-            $dataDetalis = $this->gedDesignWorked($this->_manager, $this->_disigner, $this->_startDate, $this->_endDate, $this->_catId);
-
-        }
-        return $dataDetalis;
-    } //NEDD:
 
     /**
      * Функция получает список опубликованных менеджеров
@@ -269,18 +256,105 @@ class ProjectlogModelDisinger extends JModel
     }
 
     /**
+     * Получает Проекты находящиеся в разработке за указыный период по id менеджера и дизайнера
+     *
+     * jos_projectlog_projects
+     *          ->id
+     *          ->release_id        - номер проекта
+     *          ->title             - краткое описание
+     *          ->contract_from     - когда создан проект
+     *          ->release_date      - план сдачи проекта
+     *          ->contract_to_1     - план сдачи эскиза
+     *          ->contract_to       - факт сдачи эскиза и дата отправки в производство
+     *          ->category          - стадия проекта
+     * jos_projectlog_logo
+     *          ->id
+     *          ->path
+     *
+     * @return bool|object
+     **/
+    function getDataDetalis()
+    {
+        return $this->getDataDetalisInPeriod($this->_startDate, $this->_endDate );
+    }
+
+    /**
+     * Получает Проекты находящиеся в разработке за указыный период по id менеджера и дизайнера
+     *  jos_projectlog_projects
+     *          ->id
+     *          ->release_id        - номер проекта
+     *          ->title             - краткое описание
+     *          ->contract_from     - когда создан проект
+     *          ->release_date      - план сдачи проекта
+     *          ->contract_to_1     - план сдачи эскиза
+     *          ->contract_to       - факт сдачи эскиза и дата отправки в производство
+     *          ->category          - стадия проекта
+     * jos_projectlog_logo
+     *          ->id
+     *          ->path
+     *
+     * @param date $_startDate
+     * @param date $_endDate
+     * @return bool|object
+     **/
+    public function getDataDetalisInPeriod($_startDate, $_endDate)
+    {
+        $db = JFactory::getDBO();
+        $dataDetalis = false;
+        if ( !isset($this->_disigner) OR !isset($this->_manager) ) return false;
+
+        $query = " SELECT "
+            . " p.id "
+            . ", p.release_id "
+            . ", p.title "
+            . ", p.contract_from "
+            . ", p.release_date "
+            . ", p.contract_to_1 "
+            . ", p.contract_to "
+            . ", p.category "
+            . ", l.id "
+            . ", l.project_id "
+            . ", l.path "
+            . " FROM "
+            . " jos_projectlog_projects AS p "
+            . " LEFT JOIN jos_projectlog_logo AS l "
+            . " ON p.id = l.project_id "
+            . " WHERE p.manager = " . $this->_manager
+            . " AND p.chief = " . $this->_disigner
+            . " AND p.contract_from > DATE_FORMAT('" . $_startDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+            . " AND p.contract_from <= DATE_FORMAT('" . $_endDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+            . " AND p.release_date > '0000-00-00' "
+            . " ORDER BY  p.contract_from ";
+
+        $db->setQuery($query);
+        return $dataDetalis = $db->loadObjectlist();
+    }
+
+
+    /**
      * Выборка списка не завершенных работ по ID-менеджера и дизанера. предшедствавшие указаной даты. (Выходящие на период работы)
      * @return object  id, release_id, shot_title, release_date
      */
     function getTotallOnDate()
     {
-        return $totalOnDate = null;
+        $_startDate = "2012-01-01";
+        $_endDate = $this->_startDate;
+        $count = 0;
+        $retr = null;
+
+        $totalOnDate =  $this->getDataDetalisInPeriod($_startDate, $_endDate);
+        if ($totalOnDate) $count = count( $totalOnDate );
+
+        $retr->date = $totalOnDate;
+        $retr->count = $count;
+
+        return $retr;
     }
 
     /**
      * Функция записи планов сдачи работ дизайнеров по проекту менеджеру
      */
-    function setDisignWorckPlan()
+    function setDisignWorckPlan() //NEDD:
     {
         return false;
     }
