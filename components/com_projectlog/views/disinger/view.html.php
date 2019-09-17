@@ -23,13 +23,17 @@ class ProjectlogViewDisinger extends JView
 		$document      = &JFactory::getDocument();
 		$this->baseurl = JURI::base();
 		$document->addStyleSheet($this->baseurl . '/components/com_projectlog/assets/css/zepp_designer.css');
-		$document->addStyleSheet($this->baseurl . '/components/com_projectlog/css/960.css');
-		$document->addStyleSheet($this->baseurl . '/components/com_projectlog/css/defaultTheme.css');
-		$document->addStyleSheet($this->baseurl . '/components/com_projectlog/css/myTheme.css');
         $document->addScript($url='/includes/js/joomla.javascript.js', $type = "text/javascript");
-        $document->addScript($url='/components/com_projectlog/js/jquery.min.js', $type = "text/javascript");
-        $document->addScript($url='/components/com_projectlog/js/jquery.fixedheadertable.js', $type = "text/javascript");
-        //$document->addScript($url='/components/com_projectlog/js/demo.js', $type = "text/javascript");
+
+        $disignerId = JRequest::getString('disigner', '');
+        $disigner = '';
+        if ($disignerId <> '') $disigner = projectlogHTML::getusername($disignerId);
+        $this->assignRef('disigner', $disigner);
+
+        $manager ="";
+        $managerID = JRequest::getString('manager', '');
+        if ($managerID <> '') $manager = projectlogHTML::getusername($managerID);
+        $this->assignRef('manager', $manager);
 
         $startDate = date_create($this->_models['disinger']->_startDate);
         $this->assignRef('startDate', 	date_format($startDate,'01.m.Y')    );
@@ -48,11 +52,12 @@ class ProjectlogViewDisinger extends JView
 
 		$user = JFactory::getUser();
         $this->assignRef('user', $user);
-        if ($this->_layout == "default") {
-            // Текущий месяц
-            $data = $this->get('data');
-            $this->assignRef('data', $data);
 
+        // Текущий месяц
+        $data = $this->get('data');
+        $this->assignRef('data', $data);
+
+        if ($this->_layout == "default") {
             //Прошлый месяц
             $dataLast = $this->get('dataLast');
             $this->assignRef('dataLast', $dataLast);
@@ -60,8 +65,12 @@ class ProjectlogViewDisinger extends JView
 
         // NEDD: Выборка по деталям  работ дизайнеров
         if ($this->_layout == "disign_detalis") {
+            $dDitalis = array();
             $disignDetalis = $this->get('DataDetalis'); //Детализация работ за период
-            $this->assignRef('disignDetalis', $disignDetalis);
+            foreach ($disignDetalis as $d){
+                $dDitalis[date('d',strtotime($d->release_date))] = $d;
+            }
+            $this->assignRef('dDitalis', $dDitalis);
 
             $totallOnDate = $this->get( 'TotallOnDate'); //Количество работ и детализация перед периодом
             $this->assignRef('totallOnDate', $totallOnDate);

@@ -304,7 +304,7 @@ class ProjectlogModelDisinger extends JModel
         if ( !isset($this->_disigner) OR !isset($this->_manager) ) return false;
 
         $query = " SELECT "
-            . " p.id "
+            . " p.id as pid "
             . ", p.release_id "
             . ", p.title "
             . ", p.contract_from "
@@ -312,7 +312,7 @@ class ProjectlogModelDisinger extends JModel
             . ", p.contract_to_1 "
             . ", p.contract_to "
             . ", p.category "
-            . ", l.id "
+            . ", l.id as lid"
             . ", l.project_id "
             . ", l.path "
             . " FROM "
