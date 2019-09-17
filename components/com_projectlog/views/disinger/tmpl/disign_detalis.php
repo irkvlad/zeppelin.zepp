@@ -70,11 +70,11 @@ $monthes = array(
         </thead>
         <?php
         foreach ($this->dDitalis as $data){
-            echo '<tr>
+            echo '<tr><div>
                     <table>
                         <tr><td class="right">'.$data->title.'</td></tr>
                         <tr><td class="right rid">'.$data->release_id.'</td></tr>
-                        </table>
+                        </table></div>
                    </tr>';
         }
         ?>
