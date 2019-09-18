@@ -314,9 +314,9 @@ if (projectlogHTML::getUserPChekc($this->user->get('id')) == 1)
 					if ($p->pipl_on<>0) {$ch_color_pipl='green';} */
 				?>
                 <!-- <div style="position: absolute;left:0px;top:0px">
-		        		<span style="width:9px;hight:5px;background-color:<?php echo $ch_color_mat; ?>;border:solid 1px black;">М</span></br>
-		        		<span style="width:9px;hight:5px;background-color:<?php echo $ch_color_plan; ?>;border:solid 1px black;">Ч</span></br>
-		        		<span style="width:9px;hight:5px;background-color:<?php echo $ch_color_pipl; ?>;border:solid 1px black;">Л</span>
+		        		<span style="width:9px;hight:5px;background-color:<?php //echo $ch_color_mat; ?>;border:solid 1px black;">М</span></br>
+		        		<span style="width:9px;hight:5px;background-color:<?php //echo $ch_color_plan; ?>;border:solid 1px black;">Ч</span></br>
+		        		<span style="width:9px;hight:5px;background-color:<?php //echo $ch_color_pipl; ?>;border:solid 1px black;">Л</span>
 		        	</div> -->
     </div>
 	<?php //}

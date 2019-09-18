@@ -68,7 +68,7 @@ class ProjectlogViewDisinger extends JView
             $dDitalis = array();
             $disignDetalis = $this->get('DataDetalis'); //Детализация работ за период
             foreach ($disignDetalis as $d){
-                $dDitalis[date('d',strtotime($d->release_date))] = $d;
+                $dDitalis[date('j',strtotime($d->contract_from))] = $d;
             }
             $this->assignRef('dDitalis', $dDitalis);
 
