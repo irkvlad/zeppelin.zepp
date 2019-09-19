@@ -53,11 +53,12 @@ class ProjectlogViewDisinger extends JView
 		$user = JFactory::getUser();
         $this->assignRef('user', $user);
 
-        // Текущий месяц
-        $data = $this->get('data');
-        $this->assignRef('data', $data);
+
 
         if ($this->_layout == "default") {
+            // Текущий месяц
+            $data = $this->get('data');
+            $this->assignRef('data', $data);
             //Прошлый месяц
             $dataLast = $this->get('dataLast');
             $this->assignRef('dataLast', $dataLast);
@@ -74,6 +75,12 @@ class ProjectlogViewDisinger extends JView
 
             $totallOnDate = $this->get( 'TotallOnDate'); //Количество работ и детализация перед периодом
             $this->assignRef('totallOnDate', $totallOnDate);
+
+            $categories    = array();
+            $categories[]  = JHTML::_('select.option', '0', "Проект", 'contract_from', 'release_id');
+            $categories    = array_merge($categories, $totallOnDate->date);
+            $project_list = $categories;
+            $this->assignRef('project_list', $project_list);
         }
 
         parent::display($tpl);

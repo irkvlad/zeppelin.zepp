@@ -70,6 +70,10 @@ class ProjectlogModelDisinger extends JModel
             $this->_startDateLast = date('Y-m-d', strtotime($startDate));
 
         $this->_endDate = date('Y-m-d', strtotime(JRequest::getString('endDate', date("Y-m-d"))));
+        if($this->_endDate < date('Y-m-d')){
+            $this->_startDate = date("Y-m-01", strtotime($this->_endDate));
+            $this->_endDate = date("Y-m-t", strtotime($this->_endDate) );
+        }
         $this->_endDateLast = date('Y-m-t', strtotime('- 1 days', strtotime($this->_startDate)));
 
         $this->_catId = JRequest::getInt('catid', '10');
@@ -273,8 +277,8 @@ class ProjectlogModelDisinger extends JModel
      *
      * @return bool|object
      **/
-    function getDataDetalis()
-    {
+    function getDataDetalis(){
+
         return $this->getDataDetalisInPeriod($this->_startDate, $this->_endDate );
     }
 
@@ -306,7 +310,7 @@ class ProjectlogModelDisinger extends JModel
         $query = " SELECT "
             . " p.id as pid "
             . ", p.release_id "
-            . ", p.title "
+            . ", p.shot_title "
             . ", p.contract_from "
             . ", p.release_date "
             . ", p.contract_to_1 "
@@ -315,15 +319,22 @@ class ProjectlogModelDisinger extends JModel
             . ", l.id as lid"
             . ", l.project_id "
             . ", l.path "
+            . ", a.date as akt "
             . " FROM "
             . " jos_projectlog_projects AS p "
             . " LEFT JOIN jos_projectlog_logo AS l "
             . " ON p.id = l.project_id "
+            . " LEFT JOIN jos_zepp_project_orderakts AS a  ON a.id = p.id "
             . " WHERE p.manager = " . $this->_manager
             . " AND p.chief = " . $this->_disigner
-            . " AND p.contract_from > DATE_FORMAT('" . $_startDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
-            . " AND p.contract_from <= DATE_FORMAT('" . $_endDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+            . " AND category <> 10 "
             . " AND p.release_date > '0000-00-00' "
+            . " AND ( "
+            . " (   p.contract_from > DATE_FORMAT('" . $_startDate . " 00:00:00','%Y-%m-%d %H:%i:%S')"
+            . "         AND p.contract_from <= DATE_FORMAT('" . $_endDate . " 00:00:00','%Y-%m-%d %H:%i:%S')   )"
+            . " OR ( p.contract_to > DATE_FORMAT('" . $_startDate . " 00:00:00','%Y-%m-%d %H:%i:%S') "
+            . " AND  p.contract_to <= DATE_FORMAT('" . $_endDate . " 00:00:00','%Y-%m-%d %H:%i:%S') )"
+            . " ) "
             . " ORDER BY  p.contract_from ";
 
         $db->setQuery($query);

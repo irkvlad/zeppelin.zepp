@@ -15,12 +15,14 @@ $monthes = array(
 
 $doc_path  = 'media/com_projectlog/docs/';
 
+$link_set = "/index.php?option=com_projectlog&view=disinger&layout=disign_detalis&disigner=".$this->_models['disinger']->_disigner."&manager=".$this->_models['disinger']->_manager."&Itemid=124";
+
 ?>
 
 <h1>Детализация работ</h1>
 
-<h3>Дизайнер  <?php echo $this->disigner ?>, менеджер <?php echo $this->manager ?> </h3>
-<h3>Период <?php echo $monthes[(date('n', strtotime($this->startDate)))].' '.date('Y', strtotime($this->startDate)); ?></h3>
+<span>Дизайнер <span> <?php echo $this->disigner ?></span>, менеджер <span><?php echo $this->manager ?></span> </span><br>
+<span>Период: <span><?php echo $monthes[(date('n', strtotime($this->startDate)))].' '.date('Y', strtotime($this->startDate)); ?></span></span>
 
     <style type="text/css">
        /* body {margin:0;padding:0}
@@ -35,7 +37,7 @@ $doc_path  = 'media/com_projectlog/docs/';
             width:100%;
         }
        th {max-height: 30px;min-height: 30px;height: 30px;}
-       tr {max-height: 50px;min-height: 50px;height: 50px;}
+       tr {max-height: 70px;min-height: 70px;height: 70px;}
         td,th {
             border: 1px solid;
         }
@@ -67,7 +69,8 @@ $doc_path  = 'media/com_projectlog/docs/';
        .sdey{background: #a1e9ff;}
         .end {background: #92ff86;}
         .on {background: #1dacff;}
-        .set {background: #92ff86;}
+        .pset {background: #ff999c;}
+        .set {background: #ffbba4;}
         .ower {background: #ffbdac;}
         .akt {background: #feffa4;}
         .ylou{background:#ffff00; }
@@ -77,31 +80,65 @@ $doc_path  = 'media/com_projectlog/docs/';
     </style>
 
 <div id="container">
-    <table id="name" cellspacing="0" cellpadding="0">
+    <?php
+    if($this->totallOnDate->count > 0) :
+
+
+    echo '<form action="index.php" method="post" name="adminForm" id="adminForm">';
+    echo '<span>В прошлом периоде: <span> '.$this->totallOnDate->count.' проект(ов)</span><br><span> Посмотреть: ';
+//echo JHTML::_('select.genericlist', $state, $name = 'test', $attribs = null, $key = 'value', $text = 'text', $selected = NULL, $idtag = false, $translate = false );
+//              $state - массив с элементами списка;
+//              $name - имя списка (<select name="xxx">), так же подставляется в id тэга, если не установленна переменная $idtag;
+//              $attribs - атрибуты списка; Немного из html, что может пригодиться для атрибутов. disabled - Блокирует доступ и изменение элемента. multiple - Этот параметр позволяет одновременно выбирать сразу несколько элементов списка. size - Количество отображаемых строк списка.
+//              $key и $text лучше оставлять как и есть, т.е. 'value' и 'text';
+//              $selected - значение выбранного елемента по умолчанию;
+//              $idtag - значение id для списка;
+//              $translate - это переменная, которая позволяет переводить текст. Т.е. допустим если бы я описал первый элемент так $state[] = JHTML::_('select.option', $value = '1', $text= 'First'); и поставил бы $translate = true, то значение $text преобразовалось бы в JText::_( 'First' ).
+    echo JHTML::_('select.genericlist', $this->project_list, 'endDate', 'size="1"'
+        .'onchange="document.location=\'' . $link_set . '&amp;endDate=\' +this.options[this.selectedIndex].value " '
+                , 'contract_from', 'release_id', 'Проект', '0', false);
+
+    echo "</span></form><br>";
+    endif;
+?>
+
+
+<!--Фиксированный столбец - проекты -->
+    <div style="padding-top: 10px" class="tbl">
+    <table  id="name" cellspacing="0" cellpadding="0">
         <thead>
             <th class="the"> <sub>Проекты</sub>&nbsp;\&nbsp;<sup>Дата</sup></th>
         </thead>
         <?php
+        //Перебор проектов
         foreach ($this->dDitalis as $data){
             $link = JRoute::_( "index.php?option = com_projectlog&cat_id=0&view=project&Itemid=48&id=". $data->pid);
-            //$text = '<strong style="font-size: 16px;">' . $_disigner->countTotall . '</strong>';
-            //<a title="Перейти к проекту" href="' . $link . '"> ' . $text . ' </a>
-            echo '<tr><td class="proj">
-<a href="' . $link . '" class="hasTip" title=\'Перейти к проекту\' >
+            echo '<tr><td class="proj hasTip" 
+
+title="Перейти к проекту :: Создан:<b> '
+                .$data->contract_from.'</b><br> План эскиза: <b>'
+                .($data->contract_to_1 ? $data->contract_to_1 : "нет").'</b><br> План завершения:<b> '
+                .($data->release_date ? $data->release_date : "нет").'</b><br> Статус <b>'
+                .projectlogHTML::getCatName($data->category).' '
+                .(strtotime($data->contract_to) > 0 ? $data->contract_to : "") .'</b><br> Акты:<b> '.($data->akt ? $data->akt : "нет").' ">
+
+                    <a href="' . $link . '" >
                     <table class="rig">
                      
-                        <tr class="rig"><td class="rig">'.$data->title.'</td></tr>
+                        <tr class="rig"><td class="rig">'.$data->shot_title.'</td></tr>
                         <tr class="rig"><td class="ylou rig">'.$data->release_id.'</td></tr>
                     
                     </table>
-</a>
+                    </a>
                     </td>
                    </tr>';
         }
         ?>
     </table>
     <div id="wrap">
+<!--Дни - календарь-->
         <table id="data" cellspacing="0" cellpadding="0">
+<!--Заголовок данных-->
             <thead>
             <?php
             $color='dey'; //Цвет дня недели
@@ -117,32 +154,46 @@ $doc_path  = 'media/com_projectlog/docs/';
             </thead>
 
             <?php
+ //Тело данных
             $k = 0;//Четная строка или не четная
-            $color='dey';//Цвет дня недели
-            foreach ($this->dDitalis as $data){
+            foreach ($this->dDitalis as $data){ //Перебор поектов
                 $path = $pathT = $tunbsrc = '';//Пути до календаря
 
                 echo '<tr class="row".$k>';
 
-                if( //Дата создания проекта раньше текущей даты
-                    strtotime(date('d.m.Y',strtotime($data->contract_from) ))
-                    < strtotime("01".date('.m.Y',strtotime($this->startDate)))) {
-                    $color='on" '; //Цвет дня создания проекта
-                }
-
+ // Пербор столбцов - дней месяца
                 for ($dd=1; $dd<=$number;$dd++){
                     $c='dey';
+                    $t="";
                     $dnum = date("w",strtotime($dd.date('.m.Y', strtotime($this->startDate))));//день недели
 
-                    if($dnum == 0 OR $dnum== 1) {$c='sdey';}
-                    elseif( //Дата создания проекта, показать в календаре
-                        strtotime(date('d.m.Y',strtotime($this->dDitalis[$dd]->contract_from) ))
-                        == strtotime($dd.date('.m.Y',strtotime($this->startDate)))) {
-                        $color='on';
+                    //Дата создания проекта - отметить class=on
+                    if( isset($this->dDitalis[$dd]) AND $this->dDitalis[$dd]->pid == $data->pid ){
+                        $c='on';//текущий столбец - ячейка цвет
+                        $t="Создан";
                     }
-                    $c=$color;//текущий столбец - ячейка цвет
+                    //Выходные дни-отметить class=sdey
+                    if($dnum == 0 OR $dnum == 6){
+                        $c='sdey';
+                        $t="";
+                    }
+                    //План сдачи проекта NEDD: Поправить дату
+                    if(strtotime($data->release_date) == strtotime(date($dd."-m-Y"))){
+                        $c="end";
+                        $t="Сдача проекта";
+                    }
+                    //План сдачи эскиза
+                    if($data->contract_to_1 AND strtotime($data->contract_to_1) == strtotime(date($dd."-m-Y"))){
+                        $c="pset";
+                        $t="Сдача эскиза";
+                    }
+                    //Сдан эскиз
+                    if(strtotime($data->contract_to) > 0 and strtotime($data->contract_to) == strtotime(date($dd."-m-Y")) ){
+                        $c="set";
+                        $t="Эскиз сдан";
+                    }
 
-                    echo '<td class="'.$c.' right">&nbsp;</td>';
+                    echo '<td class="'.$c.'">'.$t.'</td>';
                 }
                 echo '<td class="proj">';//Календарик
                 if (is_null($data->lid)) echo 'Календарик отсутсвует';
@@ -150,8 +201,8 @@ $doc_path  = 'media/com_projectlog/docs/';
                     $path = $doc_path . $data->pid . DS . $data->path;//путь к календарику
                     $pathT = $doc_path . $data->lid . DS . "80x80_". $data->path;//путь к превьюшке
                     if (    file_exists($pathT) )  // превьюшки может не быть
-                        $tunbsrc = '<img src='. $pathT .' width="45" height="45" alt="Логотип">' ;
-                    else  $tunbsrc = '<img src='. $path .' width="45" height="45" alt="Логотип">' ;
+                        $tunbsrc = '<img src='. $pathT .' width="60" height="60" alt="Логотип">' ;
+                    else  $tunbsrc = '<img src='. $path .' width="60" height="60" alt="Логотип">' ;
                     echo  '<a target="_blank" title="Открыть превью" href="' . $path . '">'.$tunbsrc.'</a>' ;
                 }
 
@@ -161,7 +212,7 @@ $doc_path  = 'media/com_projectlog/docs/';
             $k=1 - $k;
             ?>
         </table>
-    </div>
+    </div></div>
 </div>
 </body>
 </html>
