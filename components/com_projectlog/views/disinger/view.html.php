@@ -81,6 +81,16 @@ class ProjectlogViewDisinger extends JView
             $categories    = array_merge($categories, $totallOnDate->date);
             $project_list = $categories;
             $this->assignRef('project_list', $project_list);
+
+            $totallPostDate =$this->get( 'TotallPostDate');
+            $this->assignRef('totallPostDate', $totallPostDate);
+
+            $categories    = array();
+            $categories[]  = JHTML::_('select.option', '0', "Проект", 'contract_from', 'release_id');
+            $categories    = array_merge($categories, $totallPostDate->date);
+            $project_Postlist = $categories;
+            $this->assignRef('project_Postlist', $project_Postlist);
+
         }
 
         parent::display($tpl);

@@ -21,9 +21,10 @@ $link_set = "/index.php?option=com_projectlog&view=disinger&layout=disign_detali
 
 <h1>Детализация работ</h1>
 
-<span>Дизайнер <span> <?php echo $this->disigner ?></span>, менеджер <span><?php echo $this->manager ?></span> </span><br>
-<span>Период: <span><?php echo $monthes[(date('n', strtotime($this->startDate)))].' '.date('Y', strtotime($this->startDate)); ?></span></span>
+<span>Дизайнер <span><b><?php echo $this->disigner ?></b></span>, менеджер <span><b><?php echo $this->manager ?></b></span> </span><br>
+<span>Период: <span><b><?php echo $monthes[(date('n', strtotime($this->startDate)))].' '.date('Y', strtotime($this->startDate)); ?></b></span></span><br>
 
+<!-- ****************************  STYLE ***************************************************************-->
     <style type="text/css">
        /* body {margin:0;padding:0}
         #container {width:605px}*/
@@ -77,15 +78,29 @@ $link_set = "/index.php?option=com_projectlog&view=disinger&layout=disign_detali
         .the{background: #F17F1A; }
        td.proj{ background: transparent; padding: 0;}
        td.proj :hover { background: #1dacff;padding: 0;}
+
+        div.wprev{
+            float: left;
+            width: 300px;
+            border: 1px solid black;
+            display: block;
+            padding: 5px;}
+        div.wpost{
+            float: right;
+            width: 300px;
+            border: 1px solid black;
+            display: block;
+            padding: 5px;}
     </style>
+<!-- ****************************  STYLE ***************************************************************-->
 
 <div id="container">
     <?php
+// Работы перед периодом
     if($this->totallOnDate->count > 0) :
-
-
-    echo '<form action="index.php" method="post" name="adminForm" id="adminForm">';
-    echo '<span>В прошлом периоде: <span> '.$this->totallOnDate->count.' проект(ов)</span><br><span> Посмотреть: ';
+        echo '<div class="wprev">';
+        echo '<form action="index.php" method="post" name="adminForm" id="adminForm">';
+        echo '<span>В прошлом периоде: <b> '.$this->totallOnDate->count.' проект(ов)</b><br><span> Посмотреть: ';
 //echo JHTML::_('select.genericlist', $state, $name = 'test', $attribs = null, $key = 'value', $text = 'text', $selected = NULL, $idtag = false, $translate = false );
 //              $state - массив с элементами списка;
 //              $name - имя списка (<select name="xxx">), так же подставляется в id тэга, если не установленна переменная $idtag;
@@ -94,12 +109,23 @@ $link_set = "/index.php?option=com_projectlog&view=disinger&layout=disign_detali
 //              $selected - значение выбранного елемента по умолчанию;
 //              $idtag - значение id для списка;
 //              $translate - это переменная, которая позволяет переводить текст. Т.е. допустим если бы я описал первый элемент так $state[] = JHTML::_('select.option', $value = '1', $text= 'First'); и поставил бы $translate = true, то значение $text преобразовалось бы в JText::_( 'First' ).
-    echo JHTML::_('select.genericlist', $this->project_list, 'endDate', 'size="1"'
-        .'onchange="document.location=\'' . $link_set . '&amp;endDate=\' +this.options[this.selectedIndex].value " '
+        echo JHTML::_('select.genericlist', $this->project_list, 'endDate', 'size="1"'
+                .'onchange="document.location=\'' . $link_set . '&amp;endDate=\' +this.options[this.selectedIndex].value " '
                 , 'contract_from', 'release_id', 'Проект', '0', false);
-
-    echo "</span></form><br>";
+        echo "</span></form></div>";
     endif;
+
+// Работы после перииода
+    if($this->totallPostDate->count > 0) :
+        echo '<div class="wpost">';
+        echo '<form action="index.php" method="post" name="adminForm" id="adminForm">';
+        echo '<span>В следующем периоде: <span> '.$this->totallPostDate->count.' проект(ов)</span><br><span> Посмотреть: ';
+        echo JHTML::_('select.genericlist', $this->project_Postlist, 'endDate', 'size="1"'
+                .'onchange="document.location=\'' . $link_set . '&amp;endDate=\' +this.options[this.selectedIndex].value " '
+                , 'contract_from', 'release_id', 'Проект', '0', false);
+        echo "</span></form></div>";
+    endif;
+    echo '<br clear="all">';
 ?>
 
 
@@ -178,17 +204,17 @@ title="Перейти к проекту :: Создан:<b> '
                         $t="";
                     }
                     //План сдачи проекта NEDD: Поправить дату
-                    if(strtotime($data->release_date) == strtotime(date($dd."-m-Y"))){
+                    if(strtotime($data->release_date) == strtotime(date($dd."-m-Y",strtotime($this->startDate)))){
                         $c="end";
                         $t="Сдача проекта";
                     }
                     //План сдачи эскиза
-                    if($data->contract_to_1 AND strtotime($data->contract_to_1) == strtotime(date($dd."-m-Y"))){
+                    if($data->contract_to_1 AND strtotime($data->contract_to_1) == strtotime(date($dd."-m-Y",strtotime($this->startDate)))){
                         $c="pset";
                         $t="Сдача эскиза";
                     }
                     //Сдан эскиз
-                    if(strtotime($data->contract_to) > 0 and strtotime($data->contract_to) == strtotime(date($dd."-m-Y")) ){
+                    if(strtotime($data->contract_to) > 0 and strtotime($data->contract_to) == strtotime(date($dd."-m-Y",strtotime($this->startDate))) ){
                         $c="set";
                         $t="Эскиз сдан";
                     }
@@ -213,6 +239,17 @@ title="Перейти к проекту :: Создан:<b> '
             ?>
         </table>
     </div></div>
+    <div class="but">
+        <form action="index.php" method="post" name="adminForm" id="adminForm">
+        <button style="float:left;"
+                onclick="document.location='<?php echo $link_set ?>&amp;endDate=<?php echo $this->startDate ?>'"
+<!--                onclick="document.location.assign('--><?php //echo $link_set . '&amp;endDate='.$this->startDate; ?>//')"
+                title='Перейти'><?php echo "Предыдущий месяц" ?></button>
+        <button style="float:right;"
+                onclick="document.location.assign('<?php echo $link_set . '&amp;endDate='. date('Y-m-t', strtotime('+ 1 days', strtotime($this->endDate))); ?>')"
+                title='Перейти'><?php echo "Следущий месяц" ?></button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

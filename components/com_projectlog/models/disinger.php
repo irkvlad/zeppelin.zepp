@@ -361,6 +361,25 @@ class ProjectlogModelDisinger extends JModel
 
         return $retr;
     }
+ /**
+     * Выборка списка не завершенных работ по ID-менеджера и дизанера. после указаной даты. (Выходящие на период работы)
+     * @return object  id, release_id, shot_title, release_date
+     */
+    function getTotallPostDate()
+    {
+        $_startDate = $this->_endDate;
+        $_endDate = date('Y-m-01');
+        $count = 0;
+        $retr = null;
+
+        $totalOnDate =  $this->getDataDetalisInPeriod($_startDate, $_endDate);
+        if ($totalOnDate) $count = count( $totalOnDate );
+
+        $retr->date = $totalOnDate;
+        $retr->count = $count;
+
+        return $retr;
+    }
 
     /**
      * Функция записи планов сдачи работ дизайнеров по проекту менеджеру
